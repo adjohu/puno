@@ -1,0 +1,15 @@
+About Puno
+
+This project is a PHP5 module written in C++ that brings the OpenOffice.org UNO Programming API to the PHP userspace.
+
+You can use it to write scripts that create, modify, read and save OpenOffice.org documents (Writer, Spreadsheet, Drawing). Also, you can export these documents in various formats, like PDF or HTML for example.
+
+It can be installed on any Linux/Unix or Windows platform where PHP5 and OpenOffice.org are also available.
+
+If you need more information about the OpenOffice.org API and what you can do with it, please read the Developers Guide - First Steps chapter.
+
+It is released under PHP License 3.01. 
+
+For further reading, visit http://www.wstech2.net/puno/
+
+-----------------------------------------------------------------------

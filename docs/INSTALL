@@ -1,0 +1,113 @@
+Installation (Using Oo SDK 3.x)
+
+1. Install OpenOffice.org 3.x and OpenOffice.org SDK 3.x
+
+If you do not have OpenOffice.org installed yet, download it from http://www.openoffice.org/ (recommended) or install it from your Linux/Unix distribution binary packages (not recommended).
+
+Download the SDK from http://download.openoffice.org/other.html#tested-sdk and save it in /usr/src/, for example. Then you must extract and install the RPM or DEB files.
+
+For example, In Ubuntu, with SDK version 3.2.1:
+# cd /usr/src/
+# tar zxvf OOo-SDK_3.2.1_Linux_x86_install-deb_en-US.tar.gz
+# cd OOO320_m18_native_packed-1_en-US.9502/DEBS/
+# dpkg -i ooobasis3.2-sdk_3.2.1-18_i386.deb
+
+This will install the SDK 3.2.1 in /opt/openoffice.org/basis3.2/sdk/.
+
+
+2. Execute setsdkenv_unix
+
+Run the shell script <OPENOFFICE_SDK_PATH>/setsdkenv_unix. If this is the first time you are running the script, then you'll be prompted to answer some questions about your OpenOffice installation.
+It's required to run setsdkenv_unix before every attempt to compile PHP with UNO support. This script "prepares" the environment so that your C++ compiler can find headers, libs and other required files from the OpenOffice.org SDK.
+
+# cd <OPENOFFICE_SDK_PATH>
+#./setsdkenv_unix
+
+A few problems may occur when mixing the sdk with a distribution version of the OpenOffice suite. Distros, like Ubuntu for example, choose to place files in a different hierarchy than the original package would do.
+This results in the setsdkenv_unix script not being able to locate or correctly set the environment variables needed to build Puno or any other OpenOffice UNO applications.
+
+As a workaround, you must edit the generated script located at $HOME/$OO_SDK_NAME/$HOSTNAME/setsdkenv_unix.sh and ensure that all required variables are set and pointing to the correct paths or values described bellow:
+
+Name 			Recommend Value				Description
+OO_SDK_NAME 		openoffice.org3.2_sdk 			The SDK name.
+OO_SDK_HOME		'/opt/openoffice.org/basis3.2/sdk' 	Installation directory of the Software Development Kit.
+OFFICE_HOME 		'/usr/lib/openoffice' 			Office installation directory.
+OFFICE_BASE_HOME	$OFFICE_HOME/basis3.2 			Office Base installation directory.
+OO_SDK_URE_HOME 	'/usr/lib/ure' 				URE installation directory.
+OO_URE_TYPES_RDB_PATH 	$OO_SDK_URE_HOME/share/misc/types.rdb 	This is PUNO specific. It identifies a rdb file containg services and types definitions.
+
+
+Name	 			Recommend Value					Description
+OO_PROGRAM_OFFAPI_RDB_PATH 	$OFFICE_HOME/basis3.2/program/offapi.rdb 	This is PUNO specific. It identifies a rdb file containg services and types definitions.
+
+
+4. Download and extract Puno source
+
+Download Puno source from here and extract it to a directory, /usr/src/ for example.
+It's assumed that you already have PHP and Apache ( if required ) installed and their respectives development files (utils, headers and libs).
+
+
+
+5. Phpize Puno
+
+Go to Puno's source directory and execute phpize to "prepare" the module for building.
+# cd <PUNO_SOURCE_PATH>
+# phpize
+
+The phpize command is used to prepare the build environment for a PHP extension. It's part of PHP's development package. If you do not have it installed, then you can not build modules for PHP on your machine. Visit http://www.php.net/manual/en/install.pecl.phpize.php for more information.
+
+
+
+6. Configure Puno
+
+# ./configure --with-puno=<OPENOFFICE_SDK_PATH>
+
+
+
+7. Build automatic generated headers and Puno
+
+# make cppumaker
+# make all
+
+If you are using a distro Openoffice package, you may have to manually create symbolic links to the shared libraries in the URE lib folder "$OO_SDK_URE_HOME/lib".
+"$OO_SDK_URE_HOME/lib" is the directory containing files like libuno_cppuhelpergcc3.so.3, libuno_cppu.so.3, libuno_purpenvhelpergcc3.so.3, libuno_salhelpergcc3.so.3, libuno_sal.so.3.
+
+Link them using the following commands:
+
+# cd $OO_SDK_URE_HOME/lib
+# for i in $(ls *.so?* ); do ln -s $i `echo $i | cut -f1 -d.`.so; done
+
+
+
+8. Install files in PHP modules' directory
+
+# make install
+
+Then, add the following line into your php.ini:
+
+extension=puno.so
+
+Also, consider that you may have to configure the php.ini's extension_dir directive so that it points to the PHP's extensions directory.
+
+
+
+
+9. Configure WebServer or Shell startup scripts
+
+A PHP process, either in a webserver or standalone, requires a great amount of OpenOffice.org libraries (shared objects - .so) in order to load Puno and the UNO API. In a standard system, the O.S. will load these files automatically if they are located in /lib,/usr/lib,/usr/local/lib, etc.
+
+However, this is not the location for some openoffice libs, so you need to manually set $LD_LIBRARY_PATH or change /etc/ld.so.conf to add these files' directories to the library search path.
+To do so, run the following lines before starting the web server or add them to its startup script (/etc/init.d/apache2):
+# LD_LIBRARY_PATH=$OO_SDK_HOME/lib:$OFFICE_BASE_PROGRAM_PATH:\ $OFFICE_PROGRAM_PATH:$OO_SDK_URE_HOME/lib:$LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH
+
+Note that the setsdkenv_unix variables' $OO_SDK_HOME, $OFFICE_BASE_PROGRAM_PATH, $OFFICE_PROGRAM_PATH and $OO_SDK_URE_HOME must be set prior to $LD_LIBRARY_PATH.
+You can obtain their values from $HOME/$OO_SDK_NAME/$HOSTNAME/setsdkenv_unix.sh .
+
+This is required so that your webserver can 'find' OpenOffice.org libraries in order to use the UNO API.
+
+
+
+10. Restart the WebServer (if required)
+
+Restart your webserver if you are using one. 
