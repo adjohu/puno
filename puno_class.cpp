@@ -70,7 +70,7 @@ void x_simple_reg_rsrc_dtor_hdlr (zend_rsrc_list_entry *rsrc TSRMLS_DC)
 
 
 
-int puno_class_call_method(char *method, INTERNAL_FUNCTION_PARAMETERS) {
+int puno_class_call_method(const char *method, INTERNAL_FUNCTION_PARAMETERS) {
 	int nargs;
 	int type;
 	com::sun::star::uno::Type any_type;
@@ -169,8 +169,12 @@ static zend_object_value puno_class_object_new_ex(zend_class_entry *class_type, 
 	ALLOC_HASHTABLE(intern->std.properties);
 	zend_hash_init(intern->std.properties, 0, NULL, ZVAL_PTR_DTOR, 0);
 
-	zend_hash_copy(intern->std.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref, (void *) &tmp, sizeof(zval *));
-
+	#if PHP_VERSION_ID < 50399
+		zend_hash_copy(intern->std.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref, (void *) &tmp, sizeof(zval *));
+	#else
+		// Get zend object
+		object_properties_init(intern->std, class_type);
+	#endif
 	retval.handle = zend_objects_store_put(intern, NULL, puno_class_object_dtor, NULL TSRMLS_CC);
 
 	retval.handlers = &puno_class_handlers;
@@ -186,7 +190,7 @@ static zend_object_value puno_class_object_new(zend_class_entry *class_type TSRM
 }
 
 //read the property content to the PHP user space.
-zval *puno_class_read_property(zval *object, zval *member, int t TSRMLS_DC)
+zval *puno_class_read_property(zval *object, zval *member, int t TSRMLS_DC, const _zend_literal* abc)
 {
 	zval *return_value;
 
@@ -236,7 +240,7 @@ zval *puno_class_read_property(zval *object, zval *member, int t TSRMLS_DC)
 	return return_value;
 }
 
-void puno_class_write_property(zval *object, zval *member, zval *value TSRMLS_DC)
+void puno_class_write_property(zval *object, zval *member, zval *value TSRMLS_DC, const _zend_literal* abc)
 {
 	zval tmp_member;
 	int type;
@@ -299,7 +303,7 @@ void puno_class_write_property(zval *object, zval *member, zval *value TSRMLS_DC
 	}
 }
 
-static union _zend_function *puno_class_get_method(zval **object, char *name, int len TSRMLS_DC)
+static union _zend_function *puno_class_get_method(zval **object, char *name, int len TSRMLS_DC, const struct _zend_literal* abc)
 {
 	zend_internal_function func, *func_p = NULL;
 	union _zend_function *func_desc_p;

@@ -27,7 +27,7 @@
  * Every user visible function must have an entry in puno_functions[].
  */
 
-function_entry puno_functions[] = {
+zend_function_entry puno_functions[] = {
 	ZEND_FE(get_remote_xcomponent, NULL)
 	ZEND_FE(create_struct, NULL)
 	{	NULL, NULL, NULL}
@@ -71,7 +71,7 @@ static void php_puno_init_globals(zend_puno_globals *puno_globals) {
 
 
 /* vinculação de funções aos métodos da classe */
-function_entry puno_class_functions[] = { { NULL, NULL, NULL } };
+zend_function_entry puno_class_functions[] = { { NULL, NULL, NULL } };
 
 /* Remove if there's nothing to do at module start */
 /* {{{ PHP_MINIT_FUNCTION
