@@ -173,7 +173,7 @@ static zend_object_value puno_class_object_new_ex(zend_class_entry *class_type, 
 		zend_hash_copy(intern->std.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref, (void *) &tmp, sizeof(zval *));
 	#else
 		// Get zend object
-		object_properties_init(intern->std, class_type);
+		object_properties_init(&intern->std, class_type);
 	#endif
 	retval.handle = zend_objects_store_put(intern, NULL, puno_class_object_dtor, NULL TSRMLS_CC);
 
