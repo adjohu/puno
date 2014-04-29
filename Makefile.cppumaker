@@ -104,12 +104,7 @@ $(COMPOENNT_ENV_FLAG) :  $(COMPONENT_RDB)
 	-$(MKDIR) $(subst /,$(PS),$(@D))
 	-$(DEL) $(subst \\,\,$(subst /,$(PS),$@))
 	@echo --------------------------------------------------------------------------------
-	@echo        Register necessary runtime components in the types.rdb 
-	@echo --------------------------------------------------------------------------------
-	$(REGCOMP) -register -r $(COMPONENT_RDB) -c connector.uno.$(SHAREDLIB_EXT)
-	$(REGCOMP) -register -r $(COMPONENT_RDB) -c remotebridge.uno.$(SHAREDLIB_EXT)
-	$(REGCOMP) -register -r $(COMPONENT_RDB) -c bridgefac.uno.$(SHAREDLIB_EXT)
-	$(REGCOMP) -register -r $(COMPONENT_RDB) -c uuresolver.uno.$(SHAREDLIB_EXT)
+
 	@echo bla > $@
 
 
